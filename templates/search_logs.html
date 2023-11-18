@@ -1,0 +1,45 @@
+<!-- File: templates/search_logs.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Log Search</title>
+</head>
+<body>
+    <h1>Log Search</h1>
+    <form method="get" action="/search">
+        <label for="level">Log Level:</label>
+        <input type="text" id="level" name="level"><br>
+
+        <label for="message">Log Message:</label>
+        <input type="text" id="message" name="message"><br>
+
+        <label for="resourceId">Resource ID:</label>
+        <input type="text" id="resourceId" name="resourceId"><br>
+
+        <label for="timestamp">Timestamp:</label>
+        <input type="text" id="timestamp" name="timestamp"><br>
+
+        <label for="traceId">Trace ID:</label>
+        <input type="text" id="traceId" name="traceId"><br>
+
+        <label for="spanId">Span ID:</label>
+        <input type="text" id="spanId" name="spanId"><br>
+
+        <label for="commit">Commit:</label>
+        <input type="text" id="commit" name="commit"><br>
+
+        <label for="parentResourceId">Parent Resource ID (Metadata):</label>
+        <input type="text" id="parentResourceId" name="parentResourceId"><br>
+
+        <button type="submit">Search</button>
+    </form>
+
+    <h2>Search Results:</h2>
+    <ul>
+        {% for log in logs %}
+            <li>{{ log }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
