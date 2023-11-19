@@ -11,29 +11,29 @@ from typing import List, Optional
 from datetime import datetime
 from fastapi import Depends
 from fastapi import Depends, HTTPException
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
 # PostgreSQL database configuration
-DATABASE_URL = "postgresql://postgres:postgres@localhost/dyte_logs"
+DATABASE_URL = "postgresql://postgres:admin@localhost"
 engine = create_engine(DATABASE_URL)
 Base = declarative_base()
 
 class Log(Base):
     __tablename__ = "logs"
     id = Column(Integer, primary_key=True, index=True)
-    level = Column(String, index=True)
+    level = Column(String)
     message = Column(String)
     resourceId = Column(String)
-    timestamp = Column(DateTime, default=datetime.utcnow)
+    timestamp = Column(DateTime)
     traceId = Column(String)
     spanId = Column(String)
     commit = Column(String)
     parentResourceId = Column(String)
-Base.metadata.create_all(bind=engine)
 
+Base.metadata.create_all(bind=engine)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # Dependency to get the database session
@@ -54,9 +54,13 @@ class LogEntry(BaseModel):
     commit: str
     metadata: dict
 
+@app.get("/",  response_model=None)
+async def root():
+    return RedirectResponse("/docs")
+
 # Log ingestion endpoint
-@app.post("/ingest")
-async def ingest_log(log_entry: Log, db: Session = Depends(get_db))->Log:
+@app.post("/ingest", response_model=None)
+async def ingest_log(log_entry: Log, db: Session = Depends(get_db)):
     # Exclude the 'id' field when creating a new log entry
     db_log = Log(
         level=log_entry.level,
