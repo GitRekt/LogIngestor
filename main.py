@@ -1,3 +1,4 @@
+import json
 from fastapi import FastAPI, Depends
 from pydantic import BaseModel
 from sqlalchemy import Column, DateTime, Integer, String, create_engine
@@ -46,14 +47,16 @@ def get_db_instance():
 
 @app.post("/")
 async def ingest_stream(request: Request, db: Session = Depends(get_db_instance)):
-    async for chunk in request.stream():
-        data = chunk.decode()  # decode bytes to string
-        # Process the JSON data here. This could be any kind of processing depending on your needs.
-        db_logs = [Log(**log.dict()) for log in data]
-        db.add_all(db_logs)
-        print(type(data))
-        db.commit()
-        db.refresh(data)
+    try:
+        async for chunk in request.stream():
+            data = json.loads(chunk.decode())  # decode bytes to string
+            db_logs = [Log(**log) for log in data]
+            print(len(db_logs))
+            db.add_all(db_logs)
+            db.commit()
+    except Exception as e:
+        print(e)
+       
 
     return {"msg": "Data processed successfully"}
 
