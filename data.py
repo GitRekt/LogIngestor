@@ -3,9 +3,9 @@ import random
 from faker import Faker
 
 fake = Faker()
-
+limit=100
 with open('data.json', 'w') as f:
-    for _ in range(100000000):
+    for i in range(limit):
         item = {
             "level": random.choice(["error", "info", "warning", "debug"]),
             "message": fake.sentence(),
@@ -16,7 +16,8 @@ with open('data.json', 'w') as f:
             "commit": fake.sha1(),
             "metadata": {"parentResourceId": f"server-{fake.random_number(digits=4)}"}
         }
-        f.write(json.dumps(item, indent=2) + ',\n')
-    f.write("\n]")
+        if(i!=limit-1):
+            f.write(json.dumps(item, indent=2) + ',\n')
+    f.write("]")
     f.seek(0)
-    f.write("[\n")
+    f.write("[{\n")
