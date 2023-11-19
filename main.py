@@ -49,18 +49,26 @@ def get_db_instance():
 async def ingest_stream(request: Request, db: Session = Depends(get_db_instance)):
     try:
         async for chunk in request.stream():
-            data = json.loads(chunk.decode())  # decode bytes to string
+            data = json.loads(chunk.decode())
             db_logs = [Log(**log) for log in data]
             print(len(db_logs))
             db.add_all(db_logs)
             db.commit()
     except Exception as e:
         print(e)
-       
-
     return {"msg": "Data processed successfully"}
 
 
+@app.get("/search")
+@app.get("/search/{attribute}/")
+async def search(q:str, attribute:str | None, db:Session = Depends(get_db_instance)):
+    attribute = getattr(Log, attribute, None)
+    if attribute:
+        results = db.query(Log).filter(attribute.like(f"%{q}%")).all()
+        return results
+    else:
+        results = db.query(Log).filter(Log.commit.like(f"%{q}%")).all()
+    
 
 
 if __name__ == '__main__':
