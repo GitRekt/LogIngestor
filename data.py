@@ -18,6 +18,8 @@ with open('data.json', 'w') as f:
         }
         if(i!=limit-1):
             f.write(json.dumps(item, indent=2) + ',\n')
+        else:
+            f.write(json.dumps(item, indent=2) + '\n')
     f.write("]")
     f.seek(0)
     f.write("[{\n")
